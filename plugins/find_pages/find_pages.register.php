@@ -12,7 +12,7 @@ require_once cot_langfile('find_pages', 'plug');
 
 find_register_source(
 	'page',
-	array('page', array('al={page_alias}', 'id={page_id}')),
+	array('page', array('c={page_cat}&al={page_alias}', 'c={page_cat}&id={page_id}')),
 	"{$db_x}pages",
 	array(
 		'page_title',
