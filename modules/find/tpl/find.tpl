@@ -1,13 +1,13 @@
 <!-- BEGIN: MAIN -->
 <div class="col25 top bottom last">
-	<h2>Search the site</h2>
+	<h2>{PHP.L.find_title}</h2>
 	<form action="{FORM_ACTION}" method="GET">
 	<div id="find_form">
 		<input type="text" name="q" value="{PHP.query}" />
 		<button type="submit">{PHP.L.Search}</button>
 	</div>
 	<div id="find_sources">
-		<h3>Search in ...</h3>
+		<h3>{PHP.L.find_in}</h3>
 		<ul>
 			<!-- BEGIN: SOURCES -->
 			<li>
@@ -24,7 +24,7 @@
 		</ul>
 	</div>
 	</form>
-	<p class="sidebar_hint">Hint: you can use the + and - modifiers to make your search more precise. Use double quotes to find exact phrases.</p>
+	<p class="sidebar_hint">{PHP.L.find_hint}</p>
 </div>
 <div class="col75 top bottom">
 	<!-- BEGIN: RESULTS -->
@@ -41,7 +41,7 @@
 	<div id="find_paging" class="pagination">{PAGE_PREV}{PAGE_NAV}{PAGE_NEXT}</div>
 	<!-- END: RESULTS -->
 	<!-- BEGIN: NORESULTS -->
-	<p>No results. Try something else.</p>
+	<p>{PHP.L.find_no resultst}</p>
 	<!-- END: NORESULTS -->
 </div>
 

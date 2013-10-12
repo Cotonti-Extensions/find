@@ -13,7 +13,7 @@
 <h2>{PHP.L.indexer_statistics}</h2>
 
 <div class="column">
-	<h3>Counts</h3>
+	<h3>{PHP.L.find_adm_counts}</h3>
 	<table>
 		<tr>
 			<td style="text-align:right;">{NODES_COUNT}</td>
@@ -30,7 +30,7 @@
 	</table>
 </div>
 <div class="column">
-	<h3>Top 5 words</h3>
+	<h3>{PHP.L.find_adm_top5}</h3>
 	<ol>
 		<!-- BEGIN: TOP5 -->
 		<li>{WORD} ({COUNT})</li>
