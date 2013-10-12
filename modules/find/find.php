@@ -4,7 +4,6 @@
 Hooks=module
 [END_COT_EXT]
 ==================== */
-
 // Environment setup
 define('COT_FIND', true);
 $env['location'] = 'find';
@@ -94,18 +93,26 @@ $t = new XTemplate(cot_tplfile($tpllevels));
 if ($results && $options)
 {
 	$items = array_slice($results, $d, $cfg['find']['results_per_page']);
+
+	/* === Hook === */
+	foreach (cot_getextplugins('find.before_loop') as $pl)
+	{
+		include $pl;
+	}
+	/* ===== */
+
+	$jj = 0;
 	foreach($items as $item)
 	{
-		$data = find_get_itemdata($item['node_reftype'], $item['node_refid'], $options);
+		$jj++;
 		$t->assign(array(
 			'TYPE' => $item['node_reftype'],
 			'DATE' => cot_date('date_full', $item['date']),
 			'DATE_STAMP' => $item['date'],
 			'RATING' => $item['rating'],
-			'URL' => $data['url'],
-			'TITLE' => $data['title'],
-			'EXTRACT' => $data['extract']
 		));
+
+		find_get_itemdata($item, $options);
 		foreach($item['words'] as $word => $count)
 		{
 			$t->assign(array(
@@ -121,7 +128,7 @@ if ($results && $options)
 	$t->assign(array(
 		'RESULTS_TEXT' => cot_rc('find_results', array(
 			'count' => $pagenav['entries'],
-			'onpage' => $pagenav['onpage'], 
+			'onpage' => $pagenav['onpage'],
 			'results' => cot_declension($pagenav['entries'], $Ls['results']))),
 		'COUNT_TOTAL' => $pagenav['entries'],
 		'COUNT_ONPAGE' => $pagenav['onpage'],
@@ -173,13 +180,9 @@ foreach ($area_list as $code => $parts)
 	$t->parse('MAIN.SOURCES');
 }
 
-$t->assign(array(
-	'FORM_ACTION' => cot_url('find')
-));
+$t->assign('FORM_ACTION', cot_url('find'));
 
 $t->parse('MAIN');
 $t->out('MAIN');
 
 require_once $cfg['system_dir'].'/footer.php';
-
-?>

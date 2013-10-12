@@ -1,11 +1,9 @@
 <?php
-
 /* ====================
 [BEGIN_COT_EXT]
 Hooks=find.search.loop
 [END_COT_EXT]
 ==================== */
-
 defined('COT_CODE') or die('Wrong URL');
 
 global $structure, $c, $r, $db_x;
@@ -23,11 +21,6 @@ if ($a == 'page' && $c && $structure[$a][$c])
 				WHERE structure_code = ?), '%')
 		", array($c))->fetchColumn());
 	}
-	$cat = $db->query("
-		SELECT page_cat FROM {$db_x}pages
-		WHERE page_id = ?", array($row['node_refid'])
-	)->fetchColumn();
+	$cat = $db->query("SELECT page_cat FROM {$db_x}pages WHERE page_id = ?", array($row['node_refid']))->fetchColumn();
 	if (!in_array($cat, $categories)) $skip = true;
 }
-
-?>

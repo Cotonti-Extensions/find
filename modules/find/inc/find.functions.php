@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Search and indexer functions
  *
@@ -9,11 +8,10 @@
  * @copyright Copyright (c) Cotonti Team 2008-2011
  * @license BSD
  */
-
 defined('COT_CODE') || die('Wrong URL.');
 
-require_once cot_incfile('find', 'module', 'indexer.blacklist');
-
+//require_once cot_incfile('find', 'module', 'indexer.blacklist');
+$blacklist = ($cfg['find']['blacklist'] == 'Yes') ? explode(' ', $L['find_blacklist']) : array();
 $sources = array();
 
 /* === Hook === */
@@ -124,6 +122,7 @@ function find_search($options, $a, $f)
 		$extp = cot_getextplugins('find.search.loop');
 		/* ===== */
 
+		$node_ids = array();
 		while ($row = $res->fetch())
 		{
 			$table = $sources[$row['node_reftype']]['table'];
@@ -136,7 +135,7 @@ function find_search($options, $a, $f)
 			unset($row['words_csv'], $row['occurrences_csv']);
 
 			$skip = false;
-			/* Plugins can set $skip=true to continue the loop, preventing the 
+			/* Plugins can set $skip=true to continue the loop, preventing the
 			 * current result from being stored in final $results array.
 			 */
 
@@ -189,12 +188,15 @@ function find_search($options, $a, $f)
 				$row['date'] = 0;
 				if ($col_date)
 				{
+					$node_ids[$row['node_reftype']][] = $row['node_refid'];
+					/*
 					list($colname, $tablejoin) = find_parse_column($col_date);
 					$res2 = $db->query("
 						SELECT $colname FROM $table $tablejoin
 						WHERE $table.$col_id = ?", array($row['node_refid'])
 					);
 					$row['date'] = $res2->fetchColumn();
+					//*/
 				}
 			}
 			// Calculate rating based on word occurrences and total number of matched words.
@@ -203,6 +205,28 @@ function find_search($options, $a, $f)
 			$results[] = $row;
 		}
 	}
+
+	if (count($node_ids))
+	{
+		foreach ($node_ids as $node_name => $v)
+		{
+			$table = $sources[$node_name]['table'];
+			$col_id = $sources[$node_name]['col_id'];
+			$col_date = $sources[$node_name]['col_date'];
+			list($colname, $tablejoin) = find_parse_column($col_date);
+			$res2 = $db->query("SELECT $table.$col_id, $colname FROM $table $tablejoin WHERE $table.$col_id IN (".implode(',', $v).")");
+			$row_date = array();
+			foreach ($res2->fetchAll() as $row)
+			{
+				$row_date[$row[$col_id]] = $row[$colname];
+			}
+			foreach ($results as $k => $m)
+			{
+				if ($row_date[$m['node_refid']]) $results[$k]['date'] = $row_date[$m['node_refid']];
+			}
+		}
+	}
+
 	// Sort the results by their rating and publication date.
 	if (count($results) > 0)
 	{
@@ -233,18 +257,19 @@ function find_search($options, $a, $f)
  * @param array $options As returned by find_parse_query()
  * @return array
  */
-function find_get_itemdata($reftype, $refid, $options)
+function find_get_itemdata($item, $options)
 {
-	global $cfg, $db, $sources;
+	global $cfg, $db, $sources, $jj, $t, $usr;;
+
 	$table = $sources[$reftype]['table'];
 	$columns = $sources[$reftype]['columns'];
 	$col_id = $sources[$reftype]['col_id'];
 	$col_title = $sources[$reftype]['col_title'];
 	$urlparams = $sources[$reftype]['urlparams'];
-	if (!$table || !$columns || !$col_id || !$col_title || !$urlparams) return;
+	//if (!$table || !$columns || !$col_id || !$col_title || !$urlparams) return;
 
 	// URL generation
-	if (!is_array($urlparams[1]))
+	/*if (!is_array($urlparams[1]))
 	{
 		$urlparams[1] = array($urlparams[1]);
 	}
@@ -286,16 +311,7 @@ function find_get_itemdata($reftype, $refid, $options)
 		SELECT $col_title FROM $table $tablejoin
 		WHERE $table.$col_id = ?", array($refid)
 	);
-	$title = $res->fetchColumn();
-
-	// Extract
-	$extractcolumns = $columns;
-	$col_title_pos = array_search($col_title, $extractcolumns);
-	if ($col_title_pos !== false) unset($extractcolumns[$col_title_pos]);
-	$text = strip_tags($db->query("
-		SELECT CONCAT(".implode(', " ... ", ', $extractcolumns).")
-		FROM $table WHERE $col_id = ?", array($refid))->fetchColumn());
-	$extract = find_get_extract($text, $options['words'], $options['phrases']);
+	$title = $res->fetchColumn();*/
 
 	/* === Hook === */
 	foreach (cot_getextplugins('find.itemdata') as $pl)
@@ -304,11 +320,17 @@ function find_get_itemdata($reftype, $refid, $options)
 	}
 	/* ===== */
 
-	return array(
-		'url' => $url,
-		'title' => $title,
-		'extract' => $extract
-	);
+	// Extract
+	/*$extractcolumns = $columns;
+	$col_title_pos = array_search($col_title, $extractcolumns);
+	if ($col_title_pos !== false) unset($extractcolumns[$col_title_pos]);
+	$text = strip_tags($db->query("
+		SELECT CONCAT(".implode(', " ... ", ', $extractcolumns).")
+		FROM $table WHERE $col_id = ?", array($refid))->fetchColumn());*/
+	$extract = find_get_extract($text, $options['words'], $options['phrases']);
+	$t->assign('FIND_EXTRACT', $extract);
+
+	return true;
 }
 
 /* ================================================== */
@@ -330,7 +352,7 @@ function find_build_index($reftype, $refid)
 	set_time_limit(30);
 
 	find_remove_index($reftype, $refid);
-	
+
 	$qcount = 0;
 	$joins = array();
 	$where = array("$col_id = $refid");
@@ -447,24 +469,63 @@ function find_remove_index($reftype, $refid = null)
  * @param mixed $reftypes Array of reftypes, single reftype as String or all types if empty
  * @return int Query count
  */
-function find_index_all($reftypes = array())
+function find_index_all($reftypes = '', $start_row = 0, $qcount = 0, $start = 0)
 {
-	global $db, $sources;
-	if (!is_array($reftypes)) $reftypes = array($reftypes);
-	if (count($reftypes)==0) $reftypes = array_keys($sources);
-	$qcount = 0;
-	foreach($reftypes as $reftype)
+	global $db, $sources, $cfg, $L;
+
+	$reftyp = array_keys($sources);
+	foreach($reftyp as $k => $reftype)
 	{
 		if (!$sources[$reftype]) continue;
-		find_remove_index($reftype);
-		$res = $db->query("
-			SELECT {$sources[$reftype]['col_id']}
-			FROM {$sources[$reftype]['table']}");
-		$qcount++;
-		while ($row = $res->fetch())
-		{
-			$qcount += find_build_index($reftype, (int)$row[$sources[$reftype]['col_id']]);
+		if ($reftypes == '' || $reftypes == $reftype)
+		{			if ($reftypes == '' && $start_row == 0 && $qcount == 0 && $start == 0) find_remove_index($reftype);
+			$res_count = $db->countRows($sources[$reftype]['table']);//echo '->'.$start_row.' from '.$res_count;exit();
+			if ($start_row < $res_count)
+			{
+				$res = $db->query("SELECT {$sources[$reftype]['col_id']} FROM {$sources[$reftype]['table']} ORDER BY {$sources[$reftype]['col_id']} ASC LIMIT ".$start_row.", 40");
+				$qcount++;
+				while ($row = $res->fetch())
+				{
+					$qcount += find_build_index($reftype, (int)$row[$sources[$reftype]['col_id']]);
+					$start_row++;
+				}
+				if ($start_row < $res_count)
+				{					if (COT_AJAX)
+					{						$percent = round($start_row*100/$res_count);
+						echo '
+						<script type="text/javascript">
+						$.ajax({
+							type: "GET",
+							url: "'.$cfg['mainurl'].'/admin.php?m=find&a=indexall&reftypes='.$reftype.'&start_row='.$start_row.'&qcount='.$qcount.'&start='.$start.'",
+							dataType: "html",
+							success: function(msg){
+								$("#reindexall").html(msg);
+							}
+						});
+						</script>
+						<b>'.$reftype.'</b>:&nbsp;
+						<div style="display:inline;width:900px;height:20px;color:white;border:solid 1px gray;position:absolute;">
+							<div style="display:inline;text-align:center;background-color:blue;width:'.$percent.'%;height:20px;position:absolute;">'.$percent.'%</div>
+						</div>';
+						exit();
+					}
+					else
+					{						header("HTTP/1.1 301 Moved Permanently");
+						//header('Location: '.$cfg['mainurl'].'/admin.php?m=find&a=indexall&reftypes='.$reftype.'&start_row='.$start_row.'&qcount='.$qcount.'&start='.$start);
+						header('Refresh: 1; url='.$cfg['mainurl'].'/admin.php?m=find&a=indexall&reftypes='.$reftype.'&start_row='.$start_row.'&qcount='.$qcount.'&start='.$start);					}				}
+				if (isset($reftyp[$k+1]))
+				{					$reftypes = $reftyp[$k+1];
+					find_remove_index($reftype[$k+1]);
+				}
+				$start_row = 0;
+			}
 		}
+	}
+	if (COT_AJAX)
+	{
+		$time = cot_build_timegap($start, microtime(true), 2);
+		cot_sendheaders('text/html');
+		echo cot_rc($L['indexer_executed'], array('queries' => $qcount, 'time' => $time));
 	}
 	return $qcount;
 }
@@ -512,7 +573,7 @@ function find_get_ascii($str)
  * Seperate a text into words or phrases.
  *
  * @param string $text Input text
- * @param string $type 
+ * @param string $type
  *	Match type. Can be one of these:
  *	'words', 'phrases', 'required', 'excluded'
  * @return array Words or phrases
@@ -541,9 +602,9 @@ function find_get_words($text, $type = 'words')
  *	show up in the sources list.
  * @param array $urlparams
  *  Array containing first two parameters for cot_url(). This determines the url for search results.
- *	All columns on the item can be used as variables, like {page_id} or {page_alias}. 
- *  The second parameter can be an array of possible parameter sets. The first 
- *  item where all variables were succesfully replaced will be returned. The last item 
+ *	All columns on the item can be used as variables, like {page_id} or {page_alias}.
+ *  The second parameter can be an array of possible parameter sets. The first
+ *  item where all variables were succesfully replaced will be returned. The last item
  *  should always contain the value of $col_id.
  *  Example: array('page', array('al={page_alias}', 'id={page_id}'))
  * @param string $table
@@ -567,10 +628,7 @@ function find_get_words($text, $type = 'words')
  * @return boolean
  *	True on success, false otherwise.
  */
-function find_register_source(
-	$code, $urlparams, $table, $columns, $col_id, $col_title,
-	$col_date = null, $force = false
-)
+function find_register_source($code, $urlparams, $table, $columns, $col_id, $col_title, $col_date = null, $force = false)
 {
 	global $sources;
 	if ($sources[$code] && !$force) return false;

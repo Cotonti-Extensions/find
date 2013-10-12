@@ -1,5 +1,4 @@
 <!-- BEGIN: MAIN -->
-
 <div class="col25 top bottom last">
 	<h2>Search the site</h2>
 	<form action="{FORM_ACTION}" method="GET">
@@ -53,5 +52,4 @@ $(document).ready(function(){
 });
 //]]>
 </script>
-
 <!-- END: MAIN -->

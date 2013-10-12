@@ -3,17 +3,17 @@
 [BEGIN_COT_EXT]
 Name=Find
 Description=Indexed search
-Version=1.0
-Date=2011-10-18
-Author=Koradhil
-Copyright=Copyright (c) Cotonti Team 2008-2011
+Version=1.5
+Date=2013-10-10
+Author=Koradhil,Dayver
+Copyright=Copyright (c) Cotonti Team 2008-2013
 Notes=BSD License
 Auth_guests=R
 Lock_guests=W12345A
 Auth_members=R
 Lock_members=W12345A
 Recommends_modules=page,forums
-Recommends_plugins=search_pages,search_forums,tags
+Recommends_plugins=find_pages,find_forums,find_comment
 [END_COT_EXT]
 
 [BEGIN_COT_EXT_CONFIG]
@@ -26,7 +26,4 @@ cache_ttl=06:string::600:Keep results in cache for * seconds
 blacklist=07:radio:Yes,No:No:Enable common word blacklist to reduce DB size
 [END_COT_EXT_CONFIG]
 ==================== */
-
 defined('COT_CODE') or die('Wrong URL');
-
-?>

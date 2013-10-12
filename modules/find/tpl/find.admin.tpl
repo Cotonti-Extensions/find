@@ -1,5 +1,4 @@
 <!-- BEGIN: MAIN -->
-
 <h2>{PHP.L.indexer_title}</h2>
 
 <!-- BEGIN: INDEXING_DONE -->
@@ -9,7 +8,7 @@
 </div>
 <!-- END: INDEXING_DONE -->
 
-<p>&raquo; <a href="{INDEXALL_URL}">{PHP.L.indexer_reindex_all}</a> ({PHP.L.indexer_reindex_all_note})</p>
+<div id="reindexall">&raquo; <a href="{INDEXALL_URL}" class="ajax" rel="get-reindexall">{PHP.L.indexer_reindex_all}</a> ({PHP.L.indexer_reindex_all_note})</div>
 
 <h2>{PHP.L.indexer_statistics}</h2>
 
@@ -38,5 +37,4 @@
 		<!-- END: TOP5 -->
 	</ol>
 </div>
-
 <!-- END: MAIN -->

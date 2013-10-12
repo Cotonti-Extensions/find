@@ -1,18 +1,22 @@
 <?php
-
 /* ====================
 [BEGIN_COT_EXT]
 Hooks=find.sources
 [END_COT_EXT]
 ==================== */
-
 defined('COT_CODE') or die('Wrong URL');
 
 require_once cot_langfile('find_pages', 'plug');
 
 find_register_source(
 	'page',
-	array('page', array('c={page_cat}&al={page_alias}', 'c={page_cat}&id={page_id}')),
+	array(
+		'page',
+		array(
+			'c={page_cat}&al={page_alias}',
+			'c={page_cat}&id={page_id}'
+		)
+	),
 	"{$db_x}pages",
 	array(
 		'page_title',
@@ -23,5 +27,3 @@ find_register_source(
 	'page_title',
 	'page_begin'
 );
-
-?>
