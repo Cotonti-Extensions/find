@@ -2,7 +2,7 @@
 /* ====================
 [BEGIN_COT_EXT]
 Name=Find in Comments
-Description=Enables search in comments
+Description=Enables search in page comments
 Version=1.1
 Date=2013-10-10
 Author=Dayver

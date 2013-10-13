@@ -33,7 +33,7 @@
 	<small>{RESULTS_TEXT}</small>
 		<!-- BEGIN: ITEMS -->
 		<div>
-			<a href="{URL}">{TITLE}</a> <small>{DATE_STAMP|cot_date('date_text', $this)}</small>
+			<b>{TYPE_NAME}:</b> <a href="{FIND_URL}">{FIND_SHORTTITLE}</a> <small>{FIND_DATE_STAMP|cot_date('date_text', $this)}</small>
 			<p>{EXTRACT}...</p>
 		</div>
 		<!-- END: ITEMS -->
@@ -41,7 +41,7 @@
 	<div id="find_paging" class="pagination">{PAGE_PREV}{PAGE_NAV}{PAGE_NEXT}</div>
 	<!-- END: RESULTS -->
 	<!-- BEGIN: NORESULTS -->
-	<p>{PHP.L.find_no resultst}</p>
+	<p>{PHP.L.find_no_resultst}</p>
 	<!-- END: NORESULTS -->
 </div>
 

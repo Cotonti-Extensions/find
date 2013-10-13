@@ -6,7 +6,7 @@ Hooks=page.add.add.done
 ==================== */
 defined('COT_CODE') or die('Wrong URL');
 
-if (cot_module_active('find'))
+if (cot_module_active('find') && $id)
 {
 	require_once cot_incfile('find', 'module');
 	find_build_index('page', $id);

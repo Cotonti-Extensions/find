@@ -105,14 +105,20 @@ if ($results && $options)
 	foreach($items as $item)
 	{
 		$jj++;
+		/* === Hook === */
+		foreach (cot_getextplugins('find.itemdata') as $pl)
+		{
+			include $pl;
+		}
+		/* ===== */
 		$t->assign(array(
 			'TYPE' => $item['node_reftype'],
+			'TYPE_NAME' => isset($L['find_item'][$item['node_reftype']]) ? $L['find_item'][$item['node_reftype']] : '',
 			'DATE' => cot_date('date_full', $item['date']),
 			'DATE_STAMP' => $item['date'],
 			'RATING' => $item['rating'],
+			'EXTRACT' => find_get_extract($text, $options['words'], $options['phrases'])
 		));
-
-		find_get_itemdata($item, $options);
 		foreach($item['words'] as $word => $count)
 		{
 			$t->assign(array(
@@ -155,7 +161,7 @@ foreach ($area_list as $code => $parts)
 		'CLASS' => $a == $area ? ' class="selected"' : '',
 		'INPUT' => $a == $code ? '<input type="hidden" name="a" value="'.$a.'" />' : ''
 	));
-	if ($a == $area && $fields_list)
+	if ($a == $area && $fields_list && count($fields_list) > 1)
 	{
 		foreach ($fields_list as $field)
 		{

@@ -6,13 +6,12 @@ Hooks=find.before_loop
 ==================== */
 defined('COT_CODE') or die('Wrong URL');
 
-require_once cot_incfile('extrafields');
 require_once cot_incfile('page', 'module');
 
 $page_ids = array();
 foreach ($items as $item) if ($item['node_reftype'] == 'page') $page_ids[] = $item['node_refid'];if (count($page_ids))
 {
-	$res = $db->query("SELECT * FROM $db_pages WHERE page_id IN (".implode(',', $page_ids).")");
+	$res = $db->query("SELECT p.*, u.* FROM $db_pages AS p LEFT JOIN $db_users AS u ON u.user_id=p.page_ownerid WHERE p.page_id IN (".implode(',', $page_ids).")");
 	$page_rows = $res->fetchAll();
 	foreach ($page_rows as $k => $v)
 	{		$page_rows[$v['page_id']] = $v;

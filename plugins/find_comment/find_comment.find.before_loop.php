@@ -6,7 +6,6 @@ Hooks=find.before_loop
 ==================== */
 defined('COT_CODE') or die('Wrong URL');
 
-require_once cot_incfile('extrafields');
 require_once cot_incfile('page', 'module');
 require_once cot_incfile('comments', 'plug');
 
@@ -14,7 +13,7 @@ $com_ids = array();
 foreach ($items as $item) if ($item['node_reftype'] == 'comment') $com_ids[] = $item['node_refid'];
 if (count($com_ids))
 {
-	$res = $db->query("SELECT c.*, p.* FROM $db_com AS c LEFT JOIN $db_pages AS p ON p.page_id = c.com_code AND c.com_area = 'page' WHERE c.com_id IN (".implode(',', $com_ids).") AND c.com_area = 'page'");
+	$res = $db->query("SELECT c.*, p.*, u.* FROM $db_com AS c LEFT JOIN $db_pages AS p ON p.page_id = c.com_code AND c.com_area = 'page' LEFT JOIN $db_users AS u ON u.user_id=p.page_ownerid WHERE c.com_id IN (".implode(',', $com_ids).") AND c.com_area = 'page'");
 	$page_rows = $res->fetchAll();
 	foreach ($page_rows as $k => $v)
 	{

@@ -6,3 +6,5 @@ $L['find_page'] = 'Pages';
 $L['find_page_page_title'] = 'Title';
 $L['find_page_page_desc'] = 'Description';
 $L['find_page_page_text'] = 'Body';
+
+$L['find_item']['page'] = 'Page';
