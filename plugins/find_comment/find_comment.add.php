@@ -9,5 +9,5 @@ defined('COT_CODE') or die('Wrong URL');
 if (cot_module_active('find'))
 {
 	require_once cot_incfile('find', 'module');
-	find_build_index('comment', $id);
+	find_build_index('comment', (int) $id);
 }
