@@ -25,7 +25,7 @@ $post_ids = array();
 foreach ($items as $item) if ($item['node_reftype'] == 'forums.posts') $post_ids[] = $item['node_refid'];
 if (count($post_ids))
 {
-	$res = $db->query("SELECT p.*, t.*, u.* FROM $db_forum_posts AS p LEFT JOIN $db_forum_topics AS t ON ft_id=fp_id LEFT JOIN $db_users AS u ON u.user_id=p.fp_posterid WHERE fp_id IN (".implode(',', $post_ids).")");
+	$res = $db->query("SELECT p.*, t.*, u.* FROM $db_forum_posts AS p LEFT JOIN $db_forum_topics AS t ON ft_id=fp_topicid LEFT JOIN $db_users AS u ON u.user_id=p.fp_posterid WHERE fp_id IN (".implode(',', $post_ids).")");
 	$post_rows = $res->fetchAll();
 	foreach ($post_rows as $k => $v)
 	{
