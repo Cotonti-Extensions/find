@@ -117,7 +117,7 @@ if ($results && $options)
 			'DATE' => cot_date('date_full', $item['date']),
 			'DATE_STAMP' => $item['date'],
 			'RATING' => $item['rating'],
-			'EXTRACT' => find_get_extract($text, $options['words'], $options['phrases'])
+			'EXTRACT' => find_get_extract(strip_tags($text), $options['words'], $options['phrases'])
 		));
 		foreach($item['words'] as $word => $count)
 		{
