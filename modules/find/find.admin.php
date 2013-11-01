@@ -17,7 +17,7 @@ $adminhelp = $L['adm_help_find'];
 
 if ($a == 'indexall')
 {
-	$reftypes = cot_import('reftypes', 'G', 'ALP');
+	$reftypes = cot_import('reftypes', 'G', 'TXT');
 	if (empty($reftypes)) $reftypes = '';
 
 	$start_row = cot_import('start_row', 'G', 'INT');
