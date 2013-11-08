@@ -319,7 +319,7 @@ function find_build_index($reftype, $refid)
 				$res = $db->query("
 					SELECT word_id
 					FROM {$db_x}indexer_words
-					WHERE word_value = ?", array($word)
+					WHERE word_value = ?", array($db->prep($word))
 				);
 				$qcount++;
 				if ($row = $res->fetch())
@@ -394,7 +394,8 @@ function find_index_all($reftypes = '', $start_row = 0, $qcount = 0, $start = 0)
 	{
 		if (!$sources[$reftype]) continue;
 		if ($reftypes == '' || $reftypes == $reftype)
-		{			if ($reftypes == '' && $start_row == 0 && $qcount == 0 && $start == 0) find_remove_index($reftype);
+		{
+			if ($reftypes == '' && $start_row == 0 && $qcount == 0 && $start == 0) find_remove_index($reftype);
 			$res_count = $db->countRows($sources[$reftype]['table']);//echo '->'.$start_row.' from '.$res_count;exit();
 			if ($start_row < $res_count)
 			{
@@ -406,8 +407,10 @@ function find_index_all($reftypes = '', $start_row = 0, $qcount = 0, $start = 0)
 					$start_row++;
 				}
 				if ($start_row < $res_count)
-				{					if (COT_AJAX)
-					{						$percent = round($start_row*100/$res_count);
+				{
+					if (COT_AJAX)
+					{
+						$percent = round($start_row*100/$res_count);
 						echo '
 						<script type="text/javascript">
 						$.ajax({
@@ -426,11 +429,15 @@ function find_index_all($reftypes = '', $start_row = 0, $qcount = 0, $start = 0)
 						exit();
 					}
 					else
-					{						header("HTTP/1.1 301 Moved Permanently");
+					{
+						header("HTTP/1.1 301 Moved Permanently");
 						//header('Location: '.$cfg['mainurl'].'/admin.php?m=find&a=indexall&reftypes='.$reftype.'&start_row='.$start_row.'&qcount='.$qcount.'&start='.$start);
-						header('Refresh: 1; url='.$cfg['mainurl'].'/admin.php?m=find&a=indexall&reftypes='.$reftype.'&start_row='.$start_row.'&qcount='.$qcount.'&start='.$start);					}				}
+						header('Refresh: 1; url='.$cfg['mainurl'].'/admin.php?m=find&a=indexall&reftypes='.$reftype.'&start_row='.$start_row.'&qcount='.$qcount.'&start='.$start);
+					}
+				}
 				if (isset($reftyp[$k+1]))
-				{					$reftypes = $reftyp[$k+1];
+				{
+					$reftypes = $reftyp[$k+1];
 					find_remove_index($reftype[$k+1]);
 				}
 				$start_row = 0;
