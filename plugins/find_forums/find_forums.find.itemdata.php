@@ -102,6 +102,12 @@ if ($item['node_reftype'] == 'forums.topics')
 		'FIND_NUM' => $jj
 	));
 	$text = $item['data']['ft_desc'];
+	/* === Hook === */
+	foreach (cot_getextplugins('find.itemdata.forums.topics') as $pl)
+	{
+		include $pl;
+	}
+	/* ===== */
 }
 if ($item['node_reftype'] == 'forums.posts')
 {
@@ -162,4 +168,10 @@ if ($item['node_reftype'] == 'forums.posts')
 		'FIND_NUM' => $jj
 	));
 	$text = $item['data']['fp_text'];
+	/* === Hook === */
+	foreach (cot_getextplugins('find.itemdata.forums.posts') as $pl)
+	{
+		include $pl;
+	}
+	/* ===== */
 }

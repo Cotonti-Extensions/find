@@ -56,6 +56,7 @@ $L['indexer_words'] = 'words';
 $L['indexer_occurrences'] = 'occurrences';
 
 $L['find_title'] = 'Search the site';
+$L['find_title_result'] = 'Search result "'.htmlspecialchars($q).'"';
 $L['find_in'] = 'Search in ...';
 $L['find_hint'] = 'Hint: you can use the + and - modifiers to make your search more precise. Use double quotes to find exact phrases.';
 $L['find_no_resultst'] = 'No results. Try something else.';

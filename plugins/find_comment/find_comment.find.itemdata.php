@@ -18,4 +18,10 @@ if ($item['node_reftype'] == 'comment')
 		'FIND_NUM' => $jj
 	));
 	$text = $item['data']['com_text'];
+	/* === Hook === */
+	foreach (cot_getextplugins('find.itemdata.comment') as $pl)
+	{
+		include $pl;
+	}
+	/* ===== */
 }

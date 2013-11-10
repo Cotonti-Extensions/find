@@ -16,4 +16,10 @@ if ($item['node_reftype'] == 'page')
 		'FIND_NUM' => $jj
 	));
 	$text = $item['data']['page_text'];
+	/* === Hook === */
+	foreach (cot_getextplugins('find.itemdata.page') as $pl)
+	{
+		include $pl;
+	}
+	/* ===== */
 }
