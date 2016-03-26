@@ -3,8 +3,6 @@
  * Search and indexer functions
  *
  * @package find
- * @version 5.0
- * @author Koradhil
  * @copyright Copyright (c) Cotonti Team 2008-2011
  * @license BSD
  */
@@ -656,4 +654,3 @@ function find_parse_column($colname)
 	return array($colname, $tablejoin);
 }
 
-?>
