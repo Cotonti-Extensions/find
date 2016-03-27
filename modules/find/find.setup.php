@@ -3,8 +3,8 @@
 [BEGIN_COT_EXT]
 Name=Find
 Description=Indexed search
-Version=1.5.1
-Date=2016-03-26
+Version=1.5.2
+Date=2016-03-27
 Author=Koradhil, Dayver
 Copyright=Copyright (c) Cotonti Team 2008-2013
 Notes=BSD License

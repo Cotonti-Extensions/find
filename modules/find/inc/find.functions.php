@@ -12,6 +12,8 @@ defined('COT_CODE') || die('Wrong URL.');
 $blacklist = ($cfg['find']['blacklist'] == 'Yes') ? explode(' ', $L['find_blacklist']) : array();
 $sources = array();
 
+global $db_x;
+
 /* === Hook === */
 foreach (cot_getextplugins('find.sources') as $pl)
 {
