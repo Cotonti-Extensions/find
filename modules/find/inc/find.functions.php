@@ -3,8 +3,6 @@
  * Search and indexer functions
  *
  * @package find
- * @version 5.0
- * @author Koradhil
  * @copyright Copyright (c) Cotonti Team 2008-2011
  * @license BSD
  */
@@ -13,6 +11,8 @@ defined('COT_CODE') || die('Wrong URL.');
 //require_once cot_incfile('find', 'module', 'indexer.blacklist');
 $blacklist = ($cfg['find']['blacklist'] == 'Yes') ? explode(' ', $L['find_blacklist']) : array();
 $sources = array();
+
+global $db_x;
 
 /* === Hook === */
 foreach (cot_getextplugins('find.sources') as $pl)
@@ -656,4 +656,3 @@ function find_parse_column($colname)
 	return array($colname, $tablejoin);
 }
 
-?>
