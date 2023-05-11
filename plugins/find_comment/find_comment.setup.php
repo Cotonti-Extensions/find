@@ -3,10 +3,10 @@
 [BEGIN_COT_EXT]
 Name=Find in Comments
 Description=Enables search in page comments
-Version=1.1
-Date=2013-10-10
-Author=Dayver
-Copyright=Copyright (c) Cotonti Team 2013
+Version=1.2
+Date=2023-05-08
+Author=Dayver, Cotonti Team
+Copyright=Copyright (c) Cotonti Team 2013 - 2023
 Notes=BSD License
 Auth_guests=R
 Lock_guests=W12345A

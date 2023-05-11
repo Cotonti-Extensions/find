@@ -9,9 +9,12 @@ defined('COT_CODE') or die('Wrong URL');
 require_once cot_incfile('forums', 'module');
 
 $topic_ids = array();
-foreach ($items as $item) if ($item['node_reftype'] == 'forums.topics') $topic_ids[] = $item['node_refid'];
-if (count($topic_ids))
-{
+foreach ($items as $item) {
+    if ($item['node_reftype'] == 'forums.topics') {
+        $topic_ids[] = $item['node_refid'];
+    }
+}
+if (count($topic_ids)) {
 	$res = $db->query("SELECT * FROM $db_forum_topics WHERE ft_id IN (".implode(',', $topic_ids).")");
 	$topic_rows = $res->fetchAll();
 	foreach ($topic_rows as $k => $v)

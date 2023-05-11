@@ -13,7 +13,7 @@ $t = new XTemplate(cot_tplfile('find.admin', 'module'));
 
 $adminpath[] = array(cot_url('admin', 'm=other'), $L['Other']);
 $adminpath[] = array(cot_url('admin', 'm=find'), $L['Search']);
-$adminhelp = $L['adm_help_find'];
+$adminhelp = isset(Cot::$L['adm_help_find']) ? Cot::$L['adm_help_find'] : '';
 
 if ($a == 'indexall')
 {

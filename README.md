@@ -1,7 +1,18 @@
 Find: Index-based search for Cotonti
 ====================================
 
-Find is a module for Cotonti that provides a platform for index-based search.
+Authors: [GHengeveld](https://www.cotonti.com/users/GHengeveld), Cotonti Team
+
+Plugin page:  
+https://www.cotonti.com/extensions/navigation-structure/find
+
+**TODO:** Add i18n support \
+**TODO:** Add Trashcan support \
+**TODO:** Only published pages shuld be in index \
+**TODO:** Consider user rights to view serch result items
+
+
+Find is a module for CMF [Cotonti](https://www.cotonti.com) that provides a platform for index-based search.
 The system will index words within nodes in the database, meaning it will 
 create a database table of words out of content spread across the database, 
 allowing for fast site-wide search, even on websites with thousands of nodes.

@@ -30,7 +30,8 @@
 	<!-- BEGIN: RESULTS -->
 	<div id="find_paging" class="pagination">{PAGE_PREV}{PAGE_NAV}{PAGE_NEXT}</div>
 	<div id="find_results">
-	<small>{RESULTS_TEXT}</small>
+		<h3>{PHP.q|htmlspecialchars($this)}</h3>
+		<small>{RESULTS_TEXT}</small>
 		<!-- BEGIN: ITEMS -->
 		<div>
 			<b>{TYPE_NAME}:</b> <a href="{FIND_URL}">{FIND_SHORTTITLE}</a> <small>{FIND_DATE_STAMP|cot_date('date_text', $this)}</small>

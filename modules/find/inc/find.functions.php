@@ -9,14 +9,13 @@
 defined('COT_CODE') || die('Wrong URL.');
 
 //require_once cot_incfile('find', 'module', 'indexer.blacklist');
-$blacklist = ($cfg['find']['blacklist'] == 'Yes') ? explode(' ', $L['find_blacklist']) : array();
+$blacklist = (Cot::$cfg['find']['blacklist'] == 'Yes') ? explode(' ', Cot::$L['find_blacklist']) : array();
 $sources = array();
 
 global $db_x;
 
 /* === Hook === */
-foreach (cot_getextplugins('find.sources') as $pl)
-{
+foreach (cot_getextplugins('find.sources') as $pl) {
 	include $pl;
 }
 /* ===== */
@@ -89,9 +88,9 @@ function find_search($options, $a, $f)
 				)
 			)";
 		}
-		if ($a)
-		{
-			$where[] = "n.node_reftype IN ('".implode("', '", $area_list[$a])."')";
+		if ($a && !empty($area_list[$a])) {
+			$areas = (is_array($area_list[$a])) ? implode("', '", $area_list[$a]) : '';
+			$where[] = "n.node_reftype IN ('$areas')";
 		}
 
 		/* === Hook === */
@@ -103,34 +102,39 @@ function find_search($options, $a, $f)
 
 		$joins = implode(' ', $joins);
 		$where = implode(' AND ', $where);
-		$res = $db->query("
-			SELECT
+
+        $sql = "SELECT
 				n.node_id, n.node_reftype, n.node_refid,
 				GROUP_CONCAT(w.word_value) AS words_csv,
 				GROUP_CONCAT(o.occurrences) AS occurrences_csv
 			FROM {$db_x}indexer_words AS w
-			INNER JOIN {$db_x}indexer_occurrences AS o
-			ON o.word_id = w.word_id
-			INNER JOIN {$db_x}indexer_nodes AS n
-			ON n.node_id = o.node_id
+			INNER JOIN {$db_x}indexer_occurrences AS o ON o.word_id = w.word_id
+			INNER JOIN {$db_x}indexer_nodes AS n ON n.node_id = o.node_id
 			$joins
 			WHERE $where
-			GROUP BY n.node_refid
-		");
+			GROUP BY n.node_refid, n.node_reftype, n.node_id";
+
+		$res = Cot::$db->query($sql);
 
 		/* === Hook - Part1 : Set === */
 		$extp = cot_getextplugins('find.search.loop');
 		/* ===== */
 
 		$node_ids = array();
-		while ($row = $res->fetch())
-		{
-			$table = $sources[$row['node_reftype']]['table'];
-			$columns = $sources[$row['node_reftype']]['columns'];
-			$col_id = $sources[$row['node_reftype']]['col_id'];
-			$col_date = $sources[$row['node_reftype']]['col_date'];
-			$col_section = $sources[$row['node_reftype']]['col_section'];
-
+		while ($row = $res->fetch()) {
+            $table = $columns = $col_id = $col_date = $col_section = null;
+            if (isset($sources[$row['node_reftype']])) {
+                $table = isset($sources[$row['node_reftype']]['table']) ?
+                    $sources[$row['node_reftype']]['table'] : '';
+                $columns = isset($sources[$row['node_reftype']]['columns']) ?
+                    $sources[$row['node_reftype']]['columns'] : '';
+                $col_id = isset($sources[$row['node_reftype']]['col_id']) ?
+                    $sources[$row['node_reftype']]['col_id'] : '';
+                $col_date = isset($sources[$row['node_reftype']]['col_date']) ?
+                    $sources[$row['node_reftype']]['col_date'] : '';
+                $col_section = isset($sources[$row['node_reftype']]['col_section']) ?
+                    $sources[$row['node_reftype']]['col_section'] : '';
+            }
 			$words = array_combine(explode(',', $row['words_csv']), explode(',', $row['occurrences_csv']));
 			unset($row['words_csv'], $row['occurrences_csv']);
 
@@ -206,35 +210,32 @@ function find_search($options, $a, $f)
 		}
 	}
 
-	if (count($node_ids))
-	{
-		foreach ($node_ids as $node_name => $v)
-		{
+	if (count($node_ids)) {
+		foreach ($node_ids as $node_name => $v) {
 			$table = $sources[$node_name]['table'];
 			$col_id = $sources[$node_name]['col_id'];
 			$col_date = $sources[$node_name]['col_date'];
 			list($colname, $tablejoin) = find_parse_column($col_date);
 			$res2 = $db->query("SELECT $table.$col_id, $colname FROM $table $tablejoin WHERE $table.$col_id IN (".implode(',', $v).")");
 			$row_date = array();
-			foreach ($res2->fetchAll() as $row)
-			{
+			foreach ($res2->fetchAll() as $row) {
 				$row_date[$row[$col_id]] = $row[$colname];
 			}
-			foreach ($results as $k => $m)
-			{
-				if ($row_date[$m['node_refid']]) $results[$k]['date'] = $row_date[$m['node_refid']];
+			foreach ($results as $k => $m) {
+				if (isset($row_date[$m['node_refid']])) {
+                    $results[$k]['date'] = $row_date[$m['node_refid']];
+                }
 			}
 		}
 	}
 
 	// Sort the results by their rating and publication date.
-	if (count($results) > 0)
-	{
+	if (count($results) > 0) {
 		$s_rating = array();
 		$s_date = array();
 		foreach ($results as $key => $row) {
-			$s_rating[$key] = $row['rating'];
-			$s_date[$key] = $row['date'];
+			$s_rating[$key] = isset($row['rating']) ? $row['rating'] : null;
+			$s_date[$key] = isset($row['date']) ? $row['date'] : null;
 		}
 		array_multisort($s_rating, SORT_DESC, $s_date, SORT_DESC, $results);
 	}
@@ -265,7 +266,11 @@ function find_build_index($reftype, $refid)
 	$table = $sources[$reftype]['table'];
 	$columns = $sources[$reftype]['columns'];
 	$col_id = $sources[$reftype]['col_id'];
-	set_time_limit(30);
+
+    $timeLimit = 300; // 5 minutes
+    if ((int) ini_get('max_execution_time') < $timeLimit) {
+        set_time_limit($timeLimit);
+    }
 
 	find_remove_index($reftype, $refid);
 
@@ -319,7 +324,7 @@ function find_build_index($reftype, $refid)
 				$res = $db->query("
 					SELECT word_id
 					FROM {$db_x}indexer_words
-					WHERE word_value = ?", array($db->prep($word))
+					WHERE word_value = ?", array($word)
 				);
 				$qcount++;
 				if ($row = $res->fetch())
@@ -340,10 +345,8 @@ function find_build_index($reftype, $refid)
 				$qcount++;
 			}
 		}
-		$db->prepare("
-			UPDATE {$db_x}indexer_nodes
-			SET node_indexed = ?
-			WHERE node_id = ?")->execute(array($sys['now_offset'], $node_id));
+        $db->update($db_x . 'indexer_nodes', ['node_indexed' => Cot::$sys['now_offset']], 'node_id = ' . $node_id);
+
 		$qcount++;
 	}
 	return $qcount;
@@ -358,7 +361,9 @@ function find_build_index($reftype, $refid)
 function find_remove_index($reftype, $refid = null)
 {
 	global $db, $db_x, $sources;
-	if (!$sources[$reftype]) return;
+	if (empty($sources[$reftype])) {
+        return;
+    }
 
 	$sqlrefid = ($refid != null) ? "AND node_refid = '$refid'" : '';
 
@@ -392,7 +397,9 @@ function find_index_all($reftypes = '', $start_row = 0, $qcount = 0, $start = 0)
 	$reftyp = array_keys($sources);
 	foreach($reftyp as $k => $reftype)
 	{
-		if (!$sources[$reftype]) continue;
+		if (empty($sources[$reftype])) {
+            continue;
+        }
 		if ($reftypes == '' || $reftypes == $reftype)
 		{
 			if ($reftypes == '' && $start_row == 0 && $qcount == 0 && $start == 0) find_remove_index($reftype);
@@ -554,7 +561,7 @@ function find_get_words($text, $type = 'words')
 function find_register_source($code, $urlparams, $table, $columns, $col_id, $col_title, $col_date = null, $force = false)
 {
 	global $sources;
-	if ($sources[$code] && !$force) return false;
+	if (isset($sources[$code]) && $sources[$code] && !$force) return false;
 	if (is_string($columns)) $columns = explode(',', $columns);
 	$sources[$code] = array(
 		'urlparams' => $urlparams,
@@ -578,7 +585,7 @@ function find_word_filter($word)
 {
 	global $blacklist;
 	if (strlen($word) < 3 || strlen($word) > 50) return false;
-	if (in_array($word, $blacklist)) return false;
+	if (!empty($blacklist) && in_array($word, $blacklist)) return false;
 	return true;
 }
 
@@ -593,7 +600,9 @@ function find_word_prep(&$word)
 {
 	global $charblacklist;
 	$word = find_get_ascii($word);
-	$word = str_replace($charblacklist, '', $word);
+    if (!empty($charblacklist)) {
+        $word = str_replace($charblacklist, '', $word);
+    }
 }
 
 /**
@@ -643,11 +652,10 @@ function find_get_extract($text, $words, $phrases)
  */
 function find_parse_column($colname)
 {
-	$join = '';
+    $tablejoin = '';
 	$dotpos = strpos($colname, '.');
 	$onpos = stripos($colname, ' ON ');
-	if ($dotpos !== FALSE && $onpos !== FALSE)
-	{
+	if ($dotpos !== false && $onpos !== false) {
 		$foreign = substr($colname, 0, $dotpos);
 		$joinclause = substr($colname, $onpos + 4);
 		$colname = substr($colname, 0, $onpos);
