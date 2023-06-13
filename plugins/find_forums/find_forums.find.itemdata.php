@@ -167,7 +167,11 @@ if ($item['node_reftype'] == 'forums.posts') {
 		'FIND_ID' => $item['data']['fp_id'],
 		'FIND_POSTID' => 'post_'.$item['data']['fp_id'],
 		'FIND_IDURL' => cot_url('forums', 'm=posts&id='.$item['data']['fp_id']),
-		'FIND_URL' => cot_url('forums', 'm=posts&q='.$item['data']['fp_topicid'], '#'.$item['data']['fp_id']),
+        'FIND_URL' => cot_url(
+            'forums',
+            ['m' => 'posts', 'p' => $item['data']['fp_id']], // 'highlight' => $findHighLight],
+            '#' . $item['data']['fp_id']
+        ),
 		'FIND_CREATION' => !empty($item['data']['fp_creation']) ?
             cot_date('datetime_medium', $item['data']['fp_creation']) : '',
 		'FIND_CREATION_STAMP' => !empty($item['data']['fp_creation']) ? $item['data']['fp_creation'] : 0,

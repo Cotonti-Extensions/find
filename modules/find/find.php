@@ -45,6 +45,7 @@ foreach ($sources as $source => $data) {
 }
 
 $results = null;
+$query = '';
 if (!empty($q)) {
 	$qhash = md5(serialize($_GET));
 	$options = find_parse_query($q);
@@ -83,6 +84,8 @@ $t = new XTemplate(cot_tplfile($tpllevels));
 
 if ($results && $options) {
 	$items = array_slice($results, $d, Cot::$cfg['find']['results_per_page']);
+
+    //$findHighLight = urlencode(mb_strtoupper($query));
 
 	/* === Hook === */
 	foreach (cot_getextplugins('find.before_loop') as $pl)
