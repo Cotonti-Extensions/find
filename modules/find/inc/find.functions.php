@@ -345,7 +345,7 @@ function find_build_index($reftype, $refid)
 				$qcount++;
 			}
 		}
-        $db->update($db_x . 'indexer_nodes', ['node_indexed' => Cot::$sys['now_offset']], 'node_id = ' . $node_id);
+        $db->update($db_x . 'indexer_nodes', ['node_indexed' => Cot::$sys['now']], 'node_id = ' . $node_id);
 
 		$qcount++;
 	}

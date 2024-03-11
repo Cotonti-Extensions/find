@@ -6,7 +6,7 @@ Hooks=find.itemdata
 ==================== */
 defined('COT_CODE') or die('Wrong URL');
 
-if ($item['node_reftype'] == 'forums.topics') {
+if ($item['node_reftype'] == 'forums.topics' && !empty($item['data'])) {
 	$item['data']['ft_icon'] = 'posts';
 	$item['data']['ft_postisnew'] = FALSE;
 	$item['data']['ft_pages'] = '';
@@ -106,7 +106,7 @@ if ($item['node_reftype'] == 'forums.topics') {
 	}
 	/* ===== */
 }
-if ($item['node_reftype'] == 'forums.posts') {
+if ($item['node_reftype'] == 'forums.posts' && !empty($item['data'])) {
     if (!isset($s) || isset(cot::$cfg['forums']['cat_' . $s]) || !cot::$cfg['forums']['cat_' . $s]['allowusertext']) {
         $item['data']['user_text'] = '';
     }
@@ -163,7 +163,7 @@ if ($item['node_reftype'] == 'forums.posts') {
         isset($cfg['forums']['cat_' . $item['data']['fp_cat']]) &&
         $cfg['forums']['cat_' . $item['data']['fp_cat']]['allowbbcodes'];
 
-	$t->assign(array(
+	$t->assign([
 		'FIND_ID' => $item['data']['fp_id'],
 		'FIND_POSTID' => 'post_'.$item['data']['fp_id'],
 		'FIND_IDURL' => cot_url('forums', 'm=posts&id='.$item['data']['fp_id']),
@@ -191,7 +191,7 @@ if ($item['node_reftype'] == 'forums.posts') {
 		'FIND_DELETE_URL' => $rowdelete_url,
 		'FIND_EDIT' => $rowedit,
 		'FIND_EDIT_URL' => $rowedit_url,
-	));
+	]);
 
 	foreach (Cot::$extrafields[Cot::$db->forum_posts] as $exfld) {
 		$tag = mb_strtoupper($exfld['field_name']);
